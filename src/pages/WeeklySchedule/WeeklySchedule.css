@@ -1,0 +1,56 @@
+.cell {
+  width: 100%;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  transition: background-color 0.3s ease;
+}
+
+.available {
+  background-color: cornflowerblue;
+}
+
+.unavailable {
+  background-color: white;
+}
+
+/* New styling for selected time slot */
+.selected {
+  background-color: green!important;
+}
+
+@media (max-width: 768px) {
+  .weekly-schedule {
+    padding: 15px;
+  }
+
+  .saved-schedule {
+    padding: 10px;
+  }
+
+  .ant-table {
+    font-size: 14px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 8px;
+  }
+}
+
+.selected-time-slot {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.selected-time-slot pre {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 4px;
+}

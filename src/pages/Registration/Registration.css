@@ -1,0 +1,58 @@
+/* Registration.css */
+
+/* Base styles */
+.registrationForm {
+  padding: 20px;
+}
+
+.controller {
+  width: 100%;
+}
+
+.title {
+  font-size: 32px;
+}
+
+.subtitle {
+  font-size: 18px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .registrationForm {
+    padding: 10px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  .ant-input-group-compact > * {
+    width: 100% !important;
+    display: block;
+    margin-bottom: 8px;
+  }
+}
+.controller input,
+.controller .ant-input,
+.controller .ant-select-selector {
+  height: 40px;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .controller input,
+  .controller .ant-input,
+  .controller .ant-select-selector {
+    height: 36px;
+    font-size: 14px;
+  }
+}
