@@ -23,7 +23,7 @@ export const Profile = () => {
   const [form] = useForm();
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>(
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPnE_fy9lLMRP5DLYLnGN0LRLzZOiEpMrU4g&s'
+    'httpss://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPnE_fy9lLMRP5DLYLnGN0LRLzZOiEpMrU4g&s'
   );
 
   const [user, setUser] = useState<any>(null);
@@ -99,7 +99,7 @@ export const Profile = () => {
 
         const endpoint = user.role === 'doctor' ? 'edit_doctor_profile' : 'edit_patient_profile';
         const response = await axios.put(
-          `http://happymedkz.serveo.net/${endpoint}`,
+          `https://happymedkz.serveo.net/${endpoint}`,
           updatedData,
           {
             headers: {
