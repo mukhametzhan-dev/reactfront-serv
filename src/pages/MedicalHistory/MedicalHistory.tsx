@@ -31,7 +31,7 @@ const MedicalHistory = () => {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        const response = await axios.get(`https://happymedkz.serveo.net/get_medhistory`, {
+        const response = await axios.get(`https://happymed.duckdns.org/get_medhistory`, {
           params: { email: parsedUser.email },
         });
         if (response.status === 200) {
@@ -48,7 +48,7 @@ const MedicalHistory = () => {
   const fetchAppointments = async (userId: number) => {
     try {
       console.log(userId);
-      const response = await axios.get(`https://happymedkz.serveo.net/get_appointments_for_patient_with_id?patient_id=${userId}`);
+      const response = await axios.get(`https://happymed.duckdns.org/get_appointments_for_patient_with_id?patient_id=${userId}`);
       if (response.status === 200) {
         setAppointments(response.data.appointments);
       } else {
