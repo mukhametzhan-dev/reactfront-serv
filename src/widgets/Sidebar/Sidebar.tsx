@@ -50,7 +50,7 @@ export const Sidebar = () => {
       <div className="brand-container">
         <Row justify="center" align="middle" className="brand-row">
           <img 
-            src="/public/icons/logo.png" sizes='20x30' 
+            src="https://raw.githubusercontent.com/mukhametzhan-dev/reactfront-serv/refs/heads/main/public/icons/logo.png" sizes='20x30' 
             alt="Logo" 
             className={`brand-logo ${collapsed ? 'collapsed-logo' : ''}`}
           />
