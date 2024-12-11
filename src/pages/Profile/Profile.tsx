@@ -99,7 +99,7 @@ export const Profile = () => {
 
         const endpoint = user.role === 'doctor' ? 'edit_doctor_profile' : 'edit_patient_profile';
         const response = await axios.put(
-          `https://happymedkz.serveo.net/${endpoint}`,
+          `https://happymed.duckdns.org/${endpoint}`,
           updatedData,
           {
             headers: {
