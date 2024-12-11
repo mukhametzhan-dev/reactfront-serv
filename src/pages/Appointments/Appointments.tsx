@@ -48,7 +48,7 @@ export const Appointments = () => {
   const fetchAppointments = async (patient_id: number) => {
     try {
       const response = await axios.get(
-        `https://happymedkz.serveo.net/get_appointments_for_patient_with_id?patient_id=${patient_id}`
+        `https://happymed.duckdns.org/get_appointments_for_patient_with_id?patient_id=${patient_id}`
       );
 
       if (response.status === 200) {
@@ -120,7 +120,7 @@ export const Appointments = () => {
     }
 
     try {
-      const countResponse = await axios.get(`https://happymedkz.serveo.net/count_canceled_appointments?patient_id=${patientId}`);
+      const countResponse = await axios.get(`https://happymed.duckdns.org/count_canceled_appointments?patient_id=${patientId}`);
       console.log(countResponse.data);
       const canceledAppointmentsCount = countResponse.data.canceled_appointments_count;
       if (canceledAppointmentsCount >= 3) {
@@ -140,7 +140,7 @@ export const Appointments = () => {
 
   const handleCancel = async (appointmentId: number) => {
     try {
-      const response = await axios.post(`https://happymedkz.serveo.net/cancel`, { appointment_id: appointmentId });
+      const response = await axios.post(`https://happymed.duckdns.org/cancel`, { appointment_id: appointmentId });
       if (response.status === 200) {
         message.success('Appointment cancelled successfully.');
         if (patientId) {
