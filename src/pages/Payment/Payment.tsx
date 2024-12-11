@@ -70,7 +70,7 @@ const Payment = () => {
 
     try {
       const response = await axios.post(
-        'http://happymedkz.serveo.net/make_appointment', 
+        'https://happymedkz.serveo.net/make_appointment', 
         appointmentData, 
         { headers: { 'Content-Type': 'application/json' } }
       );
