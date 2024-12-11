@@ -41,7 +41,7 @@ const Manage = () => {
   const fetchUsers = async (role: string, query: string = '') => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/get_${role}?query=${query}`);
+      const response = await axios.get(`http://happymedkz.serveo.net/get_${role}?query=${query}`);
       console.log(response);
       if (response.status === 200) {
         setUsers(response.data);
@@ -78,7 +78,7 @@ const Manage = () => {
   const handleSave = async () => {
     if (editedUser) {
       try {
-        const response = await axios.put(`http://127.0.0.1:5000/update_user`, editedUser);
+        const response = await axios.put(`http://happymedkz.serveo.net/update_user`, editedUser);
         if (response.status === 200) {
           message.success('User updated successfully.');
           setEditingUser(null);
@@ -98,7 +98,7 @@ const Manage = () => {
       title: 'Are you sure you want to delete this user?',
       onOk: async () => {
         try {
-          const response = await axios.delete(`http://127.0.0.1:5000/delete_user`, { data: { email: user.email } });
+          const response = await axios.delete(`http://happymedkz.serveo.net/delete_user`, { data: { email: user.email } });
           if (response.status === 200) {
             message.success('User deleted successfully.');
             fetchUsers(selectedRole);
@@ -125,8 +125,8 @@ const Manage = () => {
 
         const response = await axios.get(
           selectedUser.role === 'doctor'
-            ? `http://localhost:5000/get_appointments_for_doctor?email=${selectedUser.email}`
-            : `http://localhost:5000/get_appointments_for_patient_with_id?patient_id=${selectedUser.id}`
+            ? `http://happymedkz.serveo.net/get_appointments_for_doctor?email=${selectedUser.email}`
+            : `http://happymedkz.serveo.net/get_appointments_for_patient_with_id?patient_id=${selectedUser.id}`
         );
         if (response.status === 200) {
           setAppointments(response.data.appointments);
