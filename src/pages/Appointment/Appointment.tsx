@@ -63,7 +63,7 @@ export const Appointment = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get('https://happymedkz.serveo.net/doctors');
+        const response = await axios.get('https://happymed.duckdns.org/doctors');
         if (response.status === 200) {
           setDoctors(response.data);
         } else {
