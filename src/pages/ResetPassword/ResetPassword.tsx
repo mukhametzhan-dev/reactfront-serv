@@ -23,7 +23,7 @@ const ResetPassword = () => {
   useEffect(() => {
     const validateToken = async () => {
       try {
-        const response = await axios.get(`http://happymedkz.serveo.net/reset-password/${decodedToken}`);
+        const response = await axios.get(`https://happymedkz.serveo.net/reset-password/${decodedToken}`);
         if (response.status === 200) {
           setIsTokenValid(true);
           console.log('Token is valid');
@@ -38,7 +38,7 @@ const ResetPassword = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`http://happymedkz.serveo.net/reset-password/${decodedToken}`, data);
+      const response = await axios.post(`https://happymedkz.serveo.net/reset-password/${decodedToken}`, data);
       if (response.status === 200) {
         message.success('Your password has been reset successfully.');
         navigate('/login'); // Redirect to login page
