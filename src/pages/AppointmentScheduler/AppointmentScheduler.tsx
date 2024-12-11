@@ -58,7 +58,7 @@ const AppointmentScheduler = ({ doctorEmail }) => {
     try {
       // Submit the appointmentData as JSON
       const response = await axios.post(
-        'https://happymedkz.serveo.net/make_appointment',
+        'https://happymed.duckdns.org/make_appointment',
         appointmentData,
         {
           headers: {
