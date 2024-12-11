@@ -26,7 +26,7 @@ const Forget = () => {
 
     console.log(data);
     try {
-      const response = await axios.post('https://happymedkz.serveo.net/forgot-password', data);
+      const response = await axios.post('https://happymed.duckdns.org/forgot-password', data);
       console.log('Forgot Password response:', response.data);
 
       if (response.data.message === 'Password reset email sent') {
