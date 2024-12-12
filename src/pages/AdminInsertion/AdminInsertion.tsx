@@ -21,7 +21,7 @@ const AdminInsertion = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await axios.post(`https://apihappymed.serveo.net/add_user`, data);
+      const response = await axios.post(`https://happymedkz.serveo.net/add_user`, data);
       if (response.status === 200 || response.status === 201) {
         message.success(`${role.charAt(0).toUpperCase() + role.slice(1)} added successfully.`);
         setNewUserInfo({ email: data.email, password: response.data.password });
