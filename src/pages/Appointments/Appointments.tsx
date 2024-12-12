@@ -79,7 +79,7 @@ export const Appointments = () => {
   const fetchAppointments = async (patient_id: number) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/get_appointments_for_patient_with_id?patient_id=${patient_id}`
+        `https://apihappymed.serveo.net/get_appointments_for_patient_with_id?patient_id=${patient_id}`
       );
 
       if (response.status === 200) {
@@ -171,7 +171,7 @@ export const Appointments = () => {
 
     try {
       const countResponse = await axios.get(
-        `http://localhost:5000/count_canceled_appointments?patient_id=${patientId}`
+        `https://apihappymed.serveo.net/count_canceled_appointments?patient_id=${patientId}`
       );
       console.log(countResponse.data);
       const canceledAppointmentsCount = countResponse.data.canceled_appointments_count;
@@ -190,7 +190,7 @@ export const Appointments = () => {
 
   const handleCancel = async (appointmentId: number) => {
     try {
-      const response = await axios.post(`http://localhost:5000/cancel`, { appointment_id: appointmentId });
+      const response = await axios.post(`https://apihappymed.serveo.net/cancel`, { appointment_id: appointmentId });
       if (response.status === 200) {
         message.success('Appointment cancelled successfully.');
         if (patientId) {
