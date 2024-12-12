@@ -29,7 +29,7 @@ export const Login = () => {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await axios.post('http://127.0.0.1:5000/login', data);
+      const response = await axios.post('https://apihappymed.serveo.net/login', data);
       console.log('Login response:', response.data);
   
       if (response.data.status === 'success') {
@@ -41,7 +41,7 @@ export const Login = () => {
         // if (response.data.user.role === 'patient') {
         //   const userId = response.data.user.user_id;
         //   try {
-        //     const patientResponse = await axios.get(`http://localhost:5000/get_patient_id`, {
+        //     const patientResponse = await axios.get(`https://apihappymed.serveo.net/get_patient_id`, {
         //       params: { user_id: userId },
         //     });
         //     if (patientResponse.status === 200) {
