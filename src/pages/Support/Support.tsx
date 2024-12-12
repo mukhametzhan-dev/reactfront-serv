@@ -31,7 +31,7 @@ const Support = () => {
 
     try {
         console.log('query:', query);
-      const res = await axios.post('https://apihappymed.serveo.net/answer_query', { query });
+      const res = await axios.post('https://happymedkz.serveo.net/answer_query', { query });
 
       if (res.status === 200 && res.data.answer) {
         setMessages([...newMessages, { sender: 'bot', text: res.data.answer }]);
