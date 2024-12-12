@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Button, Col, Input, Row, Typography, message, Spin, Modal } from 'antd';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, ArrowLeftOutlined, PrinterOutlined } from '@ant-design/icons';
+import jsPDF from 'jspdf'; // Ensure jsPDF is installed
 import './Payment.css';
 
 const { Title, Text } = Typography;
@@ -25,7 +26,7 @@ const priceDict: { [key: string]: number } = {
 };
 
 const Payment = () => {
-  const { control, handleSubmit, formState: { errors }, watch } = useForm<PaymentFormData>();
+  const { control, handleSubmit, formState: { errors }, watch, setValue } = useForm<PaymentFormData>();
   const navigate = useNavigate();
   const location = useLocation();
   const appointmentData = location.state?.appointmentData;
@@ -33,11 +34,18 @@ const Payment = () => {
   const [loading, setLoading] = useState(false);
   const [paymentSum, setPaymentSum] = useState<number>(0);
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+  const [receiptData, setReceiptData] = useState<{
+    lastFourDigits: string;
+    cardType: string;
+    cardHolder: string;
+    paymentAmount: number;
+    dateTime: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!appointmentData) {
       message.error('No appointment data found. Redirecting...');
-      navigate('/appointment');
+      navigate('/appointments');
     } else {
       const appointmentType = appointmentData.appointmentType;
       const price = priceDict[appointmentType] || 0;
@@ -45,33 +53,89 @@ const Payment = () => {
     }
   }, [appointmentData, navigate]);
 
+  // Watch card number to determine card type
   const cardNumberValue = watch('cardNumber');
   const getCardType = (): string => {
     if (!cardNumberValue) return '';
     const firstDigit = cardNumberValue.trim()[0];
     if (firstDigit === '4') return 'visa';
     if (firstDigit === '5') return 'mastercard';
-    return '';
+    return 'unknown';
+  };
+
+  // Handle Receipt Printing
+  const handlePrintReceipt = () => {
+    if (!receiptData) return;
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text('Payment Receipt', 105, 20, { align: 'center' });
+
+    doc.setFontSize(12);
+    doc.text(`Card Holder: ${receiptData.cardHolder}`, 20, 40);
+    doc.text(`Card Type: ${receiptData.cardType}`, 20, 50);
+    doc.text(`Card Number: **** **** **** ${receiptData.lastFourDigits}`, 20, 60);
+    doc.text(`Payment Amount: ${receiptData.paymentAmount} KZT`, 20, 70);
+    doc.text(`Date & Time: ${receiptData.dateTime}`, 20, 80);
+
+    doc.save('receipt.pdf');
   };
 
   const onSubmit = async (data: PaymentFormData) => {
     if (!appointmentData) return; // Safe guard
     
+    // Numeric Validation
+    const cardNumberValid = /^\d{16}$/.test(data.cardNumber.replace(/\s+/g, ''));
+    const expirationMonthValid = /^(0[1-9]|1[0-2])$/.test(data.expirationMonth);
     const currentYear = new Date().getFullYear();
     const expirationYear = parseInt(data.expirationYear, 10);
-    
-    if (expirationYear < currentYear) {
-      message.error('Card has expired.');
+    const cvvValid = /^\d{3}$/.test(data.cvv);
+
+    if (!cardNumberValid) {
+      message.error('Card number must be 16 digits.');
+      return;
+    }
+
+    if (!expirationMonthValid) {
+      message.error('Expiration month must be between 01 and 12.');
+      return;
+    }
+
+    if (isNaN(expirationYear) || expirationYear < currentYear) {
+      message.error('Card has expired. Please check the expiration year.');
+      return;
+    }
+
+    if (!cvvValid) {
+      message.error('CVV must be 3 digits.');
       return;
     }
 
     setLoading(true);
     message.loading({ content: 'Processing payment...', key: 'paymentProcess' });
 
+    // try {
+    //   const response = await axios.post(
+    //     'http://127.0.0.1:5000/make_appointment', 
+    //     appointmentData, 
+    //     { headers: { 'Content-Type': 'application/json' } }
+    //   );
     try {
       const response = await axios.post(
-        'https://happymed.duckdns.org/make_appointment', 
-        appointmentData, 
+        'http://127.0.0.1:5000/make_appointment', // Changed endpoint to make_payment
+        {
+          ...appointmentData,
+          // paymentSum,
+          // cardDetails: {
+          //   cardNumber: data.cardNumber,
+          //   cardHolder: data.cardHolder,
+          //   expirationMonth: data.expirationMonth,
+          //   expirationYear: data.expirationYear,
+          //   cvv: data.cvv,
+          //   cardType: getCardType(),
+          // }
+        }, 
         { headers: { 'Content-Type': 'application/json' } }
       );
       console.log(appointmentData);
@@ -79,15 +143,30 @@ const Payment = () => {
       message.destroy('paymentProcess');
 
       if (response.status === 200 || response.status === 201) {
+        // Prepare receipt data
+        const lastFourDigits = data.cardNumber.slice(-4);
+        const cardType = getCardType().toUpperCase();
+        const cardHolder = data.cardHolder;
+        const paymentAmount = paymentSum;
+        const dateTime = new Date().toLocaleString();
+
+        setReceiptData({
+          lastFourDigits,
+          cardType,
+          cardHolder,
+          paymentAmount,
+          dateTime,
+        });
+
         // Show success modal with animation
         setIsSuccessModalVisible(true);
       } else {
-        message.error('Failed to make appointment.');
+        message.error('Failed to process payment.');
       }
     } catch (error) {
       setLoading(false);
       message.destroy('paymentProcess');
-      console.error('Error making appointment:', error);
+      console.error('Error processing payment:', error);
       message.error('An unexpected error occurred.');
     }
   };
@@ -97,9 +176,13 @@ const Payment = () => {
     navigate('/appointments');
   };
 
+  const handleBack = () => {
+    navigate('/appointments');
+  };
+
   return (
     <div className="payment-container">
-      <Row justify="center" gutter={24} style={{ padding: '50px' }}>
+      <Row justify="center" gutter={24} className="payment-row">
         <Col xs={24} sm={24} md={8} lg={8}>
           <div className="payment-summary">
             <Title level={3}>Appointment Details</Title>
@@ -118,7 +201,17 @@ const Payment = () => {
           </div>
         </Col>
         <Col xs={24} sm={24} md={16} lg={12}>
-          <Title level={2}>Payment Information</Title>
+          <div className="form-header">
+            <Title level={2}>Payment Information</Title>
+            <Button
+              type="link"
+              icon={<ArrowLeftOutlined />}
+              onClick={handleBack}
+              className="back-button"
+            >
+              Back to Appointments
+            </Button>
+          </div>
           <form onSubmit={handleSubmit(onSubmit)} className="payment-form">
             <Row gutter={[16, 16]}>
               <Col span={24}>
@@ -129,9 +222,20 @@ const Payment = () => {
                       name="cardNumber"
                       control={control}
                       rules={{ required: 'Please enter your card number' }}
-                      render={({ field }) => <Input {...field} placeholder="XXXX XXXX XXXX XXXX" maxLength={19} />}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          placeholder="XXXX XXXX XXXX XXXX"
+                          maxLength={19}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 16);
+                            const formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                            setValue('cardNumber', formattedValue);
+                          }}
+                        />
+                      )}
                     />
-                    {getCardType() && (
+                    {getCardType() !== 'unknown' && getCardType() && (
                       <img 
                         className="card-icon" 
                         src={`/icons/${getCardType()}.png`} 
@@ -162,8 +266,24 @@ const Payment = () => {
                   <Controller
                     name="expirationMonth"
                     control={control}
-                    rules={{ required: 'Please enter the expiration month' }}
-                    render={({ field }) => <Input {...field} placeholder="MM" maxLength={2} />}
+                    rules={{ 
+                      required: 'Please enter the expiration month',
+                      pattern: {
+                        value: /^(0[1-9]|1[0-2])$/,
+                        message: 'Enter a valid month (01-12)'
+                      }
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        placeholder="MM"
+                        maxLength={2}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 2);
+                          setValue('expirationMonth', value);
+                        }}
+                      />
+                    )}
                   />
                   {errors.expirationMonth && <span className="error-message">{errors.expirationMonth.message}</span>}
                 </div>
@@ -175,8 +295,24 @@ const Payment = () => {
                   <Controller
                     name="expirationYear"
                     control={control}
-                    rules={{ required: 'Please enter the expiration year' }}
-                    render={({ field }) => <Input {...field} placeholder="YYYY" maxLength={4} />}
+                    rules={{ 
+                      required: 'Please enter the expiration year',
+                      pattern: {
+                        value: /^\d{4}$/,
+                        message: 'Enter a valid year (YYYY)'
+                      }
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        placeholder="YYYY"
+                        maxLength={4}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                          setValue('expirationYear', value);
+                        }}
+                      />
+                    )}
                   />
                   {errors.expirationYear && <span className="error-message">{errors.expirationYear.message}</span>}
                 </div>
@@ -188,15 +324,36 @@ const Payment = () => {
                   <Controller
                     name="cvv"
                     control={control}
-                    rules={{ required: 'Please enter the CVV' }}
-                    render={({ field }) => <Input {...field} placeholder="XXX" maxLength={3} />}
+                    rules={{ 
+                      required: 'Please enter the CVV',
+                      pattern: {
+                        value: /^\d{3}$/,
+                        message: 'CVV must be 3 digits'
+                      }
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        placeholder="XXX"
+                        maxLength={3}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 3);
+                          setValue('cvv', value);
+                        }}
+                      />
+                    )}
                   />
                   {errors.cvv && <span className="error-message">{errors.cvv.message}</span>}
                 </div>
               </Col>
 
               <Col span={24}>
-                <Button type="primary" htmlType="submit" className="pay-button" disabled={loading}>
+                <Button 
+                  type="primary" 
+                  htmlType="submit" 
+                  className="pay-button" 
+                  disabled={loading}
+                >
                   {loading ? <Spin /> : 'Pay'}
                 </Button>
               </Col>
@@ -210,10 +367,20 @@ const Payment = () => {
         onOk={handleModalOk}
         onCancel={handleModalOk}
         footer={[
+          receiptData && (
+            <Button 
+              key="print" 
+              onClick={handlePrintReceipt} 
+              icon={<PrinterOutlined />}
+            >
+              Print Receipt
+            </Button>
+          ),
           <Button key="ok" type="primary" onClick={handleModalOk}>
             OK
           </Button>
         ]}
+        className="success-modal"
       >
         <div className="success-modal-content">
           <div className="success-icon-wrapper">

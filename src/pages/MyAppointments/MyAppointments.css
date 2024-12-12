@@ -1,41 +1,164 @@
-/* MyAppointments.css */
-
 .my-appointments {
-    padding: 50px;
+  padding: 20px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
+
+.appointments-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1890ff;
+}
+
+.appointments-table {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Headers */
+.my-appointments .ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Table Cells */
+.my-appointments .ant-table-tbody > tr > td {
+  text-align: center;
+  padding: 12px;
+}
+
+/* Hover Effect */
+.my-appointments .ant-table-tbody > tr:hover > td {
+  background-color: #f5f5f5;
+}
+
+/* Status Styles */
+.status-completed {
+  color: #52c41a;
+  font-weight: bold;
+}
+
+.status-upcoming {
+  color: #faad14;
+  font-weight: bold;
+}
+
+.status-past {
+  color: #f5222d;
+  font-weight: bold;
+}
+
+/* Complete Button */
+.complete-button {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.complete-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.complete-button:disabled {
+  background-color: #d9d9d9;
+  border-color: #d9d9d9;
+}
+
+/* Modal Styles */
+.ant-modal-content {
+  border-radius: 8px;
+}
+
+.ant-modal-header {
+  background-color: #fafafa;
+  border-bottom: none;
+}
+
+.ant-modal-footer {
+  border-top: none;
+  text-align: right;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-button {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #ff7875;
+  border-color: #ff7875;
+}
+
+.submit-button {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #73d13d;
+  border-color: #73d13d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .my-appointments {
+    padding: 10px;
   }
-  
-  .my-appointments .ant-table {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  .appointments-title {
+    font-size: 24px;
   }
-  
-  .my-appointments .ant-table-thead > tr > th {
-    background-color: #fafafa;
-    font-weight: bold;
-    text-align: center;
+
+  .appointments-table {
+    font-size: 14px;
   }
-  
+
+  .my-appointments .ant-table-thead > tr > th,
   .my-appointments .ant-table-tbody > tr > td {
-    text-align: center;
-    padding: 12px;
+    padding: 8px;
   }
-  
-  .my-appointments .ant-table-tbody > tr:hover > td {
-    background-color: #f5f5f5;
+
+  /* Modal Adjustments */
+  .ant-modal-content {
+    padding: 10px;
   }
-  
-  @media (max-width: 768px) {
-    .my-appointments {
-      padding: 15px;
-    }
-  
-    .my-appointments .ant-table {
-      font-size: 14px;
-    }
-  
-    .my-appointments .ant-table-thead > tr > th,
-    .my-appointments .ant-table-tbody > tr > td {
-      padding: 8px;
-    }
+
+  .modal-buttons {
+    flex-direction: column;
+    align-items: stretch;
   }
+
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+  }
+}
+
+/* Upcoming Icon (Clock) Styling */
+.status-icon.upcoming {
+  font-size: 20px;
+  color: #faad14;
+}
+
+.status-icon.completed {
+  font-size: 20px;
+  color: #52c41a;
+}
+
+.status-icon.past {
+  font-size: 20px;
+  color: #f5222d;
+}

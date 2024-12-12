@@ -50,35 +50,28 @@ export const sidebarItems: MenuItem[] = [
 export const patientSidebarItems: MenuItem[] = [
   ...sidebarItems,
   {
-    key: 'appointment',
+    key: 'booking',
     type: 'group',
-    label: 'Booking options',
+    label: 'Booking',
     children: [
-      {
-        key: privateRoutesMap.appointment,
-        type: 'item',
-        label: 'Make an appointment',
-        icon: <CheckSquareOutlined />,
-      },
       {
         key: privateRoutesMap.appointments,
         type: 'item',
         label: 'Appointments',
-        icon: <HistoryOutlined />, 
+        icon: <HistoryOutlined />,
       },
       {
-        key: privateRoutesMap.medhistory,
+        key: privateRoutesMap.appointment,
         type: 'item',
-        label: 'Medical History',
-        icon: <HeartOutlined />,
-      }
-
+        label: 'Make Appointment',
+        icon: <CheckSquareOutlined />,
+      },
     ],
   },
   {
-    key: 'transactions',
+    key: 'history',
     type: 'group',
-    label: 'Transactions',
+    label: 'History',
     children: [
       {
         key: privateRoutesMap.transactions,
@@ -86,11 +79,14 @@ export const patientSidebarItems: MenuItem[] = [
         label: 'Transactions',
         icon: <ReconciliationOutlined />,
       },
+      {
+        key: privateRoutesMap.medhistory,
+        type: 'item',
+        label: 'Medical History',
+        icon: <HeartOutlined />,
+      },
     ],
   },
-
-  
-
 ];
 
 export const doctorSidebarItems: MenuItem[] = [

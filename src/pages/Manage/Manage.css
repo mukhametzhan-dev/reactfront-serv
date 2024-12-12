@@ -1,30 +1,155 @@
+/* Container Styles */
 .manage-container {
-    padding: 30px;
-    background-color: #f0f2f5;
-    min-height: 100vh;
-  }
-  
-  .role-select {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .search-input {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  .search-button {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  .show-all-button {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .user-list {
-    margin-top: 20px;
+  padding: 20px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
+
+/* Title Styling */
+.manage-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1890ff;
+}
+
+/* Controls Row */
+.controls-row {
+  margin-bottom: 20px;
+}
+
+/* Role Select */
+.role-select {
+  width: 100%;
+}
+
+/* Search Input */
+.search-input {
+  width: 100%;
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Search Button */
+.search-button {
+  /* Width is controlled by content */
+}
+
+/* Show All Button */
+.show-all-button {
+  /* Width is controlled by content */
+}
+
+/* User List */
+.user-list {
+  margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Selected User Highlight */
+.user-list .ant-list-item {
+  transition: background-color 0.3s;
+}
+
+.user-list .ant-list-item:hover {
+  background-color: #e6f7ff;
+}
+
+/* Actions Card */
+.actions-card {
+  margin-top: 20px;
+  padding: 15px;
+  text-align: center;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Action Buttons */
+.action-button {
+  min-width: 100px;
+}
+
+.edit-button {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.edit-button:hover,
+.edit-button:focus {
+  background-color: #69c0ff;
+  border-color: #69c0ff;
+}
+
+.delete-button {
+  background-color: #f5222d;
+  border-color: #f5222d;
+}
+
+.delete-button:hover,
+.delete-button:focus {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.appointments-button {
+  background-color: #13c2c2;
+  border-color: #13c2c2;
+  color: white;
+}
+
+.appointments-button:hover,
+.appointments-button:focus {
+  background-color: #36cfc9;
+  border-color: #36cfc9;
+  color: white;
+}
+
+/* Edit Form Card */
+.edit-form-card {
+  margin-top: 20px;
+  padding: 20px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Appointment Card */
+.appointment-card {
+  background-color: #fafafa;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .manage-container {
+    padding: 10px;
   }
 
+  .manage-title {
+    font-size: 24px;
+  }
+
+  .controls-row {
+    flex-direction: column;
+  }
+
+  .button-group {
+    justify-content: flex-start;
+  }
+
+  .action-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .actions-card {
+    padding: 10px;
+  }
+
+  .edit-form-card {
+    padding: 15px;
+  }
+}

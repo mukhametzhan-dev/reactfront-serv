@@ -1,22 +1,203 @@
 .medical-history-container {
-  padding: 30px;
+  padding: 20px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
 }
 
-.medical-history-card, .statistics-card {
+.appointments-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1890ff;
+}
+
+.statistics-button {
+  display: block;
+  margin: 0 auto 20px auto;
+  width: 200px;
+  background-color: #13c2c2;
+  border-color: #13c2c2;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.statistics-button:hover {
+  background-color: #36cfc9;
+  border-color: #36cfc9;
+}
+
+.statistics-card {
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.statistics-title {
+  margin-bottom: 20px;
+}
+
+.medical-history-card {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1890ff;
 }
 
 .appointment-card {
   margin-bottom: 16px;
   padding: 16px;
-  background-color: #ffffff;
+  background-color: #fafafa;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.appointment-date {
+  margin-left: 10px;
+  color: #595959;
+}
+
+.status-icon {
+  font-size: 24px;
+}
+
+.status-icon.completed {
+  color: #52c41a;
+}
+
+.status-icon.upcoming {
+  color: #fa8c16;
+}
+
+.status-icon.past {
+  color: #f5222d;
 }
 
 .appointment-text {
   display: block;
   margin-bottom: 8px;
+}
+
+.complete-button {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.complete-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.complete-button:disabled {
+  background-color: #d9d9d9;
+  border-color: #d9d9d9;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-button {
+  background-color: #f5222d;
+  border-color: #f5222d;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.submit-button {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #73d13d;
+  border-color: #73d13d;
+}
+
+.completion-form {
+  padding: 10px;
+}
+
+.diagnosis-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-icon {
+  color: #1890ff;
+}
+
+@media (max-width: 768px) {
+  .medical-history-container {
+    padding: 10px;
+  }
+
+  .appointments-title {
+    font-size: 24px;
+  }
+
+  .statistics-button {
+    width: 100%;
+  }
+
+  .statistics-card, .medical-history-card {
+    padding: 15px;
+  }
+
+  .appointment-card {
+    padding: 12px;
+  }
+
+  .appointment-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .appointment-date {
+    margin-left: 0;
+    margin-top: 5px;
+  }
+
+  .status-icon {
+    font-size: 20px;
+  }
+
+  .complete-button {
+    width: 100%;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }

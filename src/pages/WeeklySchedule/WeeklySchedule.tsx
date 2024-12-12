@@ -83,7 +83,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   const fetchExistingSchedule = async (email: string) => {
     try {
       const response = await axios.get(
-        `https://happymed.duckdns.org/get_schedule?email=${email}`
+        `http://127.0.0.1:5000/get_schedule?email=${email}`
       );
       if (response.status === 200 && response.data.schedule) {
         const existingSchedule: ScheduleResponse = response.data;

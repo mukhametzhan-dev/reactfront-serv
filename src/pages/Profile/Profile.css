@@ -1,54 +1,128 @@
-/* Profile.css */
-
-/* Base styles */
 .profile-container {
-    padding: 30px;
-  }
-  
-  .profile-header {
-    display: flex;
-    flex-direction: row;
-  }
-  
-  .profile-details {
-    padding: 20px;
-  }
-  
-  .profile-item {
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
-  
-  /* Responsive styles */
-  @media (max-width: 768px) {
-    .profile-container {
-      padding: 15px;
-    }
-  
-    .profile-header {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .profile-details {
-      padding: 10px;
-    }
-  
-    .profile-item {
-      font-size: 14px;
-    }
-  }
-/* Profile.css */
+  background-color: #f0f2f5;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.profile-card {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.profile-title {
+  text-align: center;
+  color: #1890ff;
+}
+
+.profile-content {
+  margin-top: 20px;
+}
+
+.avatar-section {
+  text-align: center;
+}
+
+.profile-avatar {
+  border: 2px solid #1890ff;
+}
+
+.avatar-upload {
+  margin-top: 10px;
+  cursor: pointer;
+  border: 1px dashed #1890ff;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  background-color: #fafafa;
+}
+
+.avatar-upload:hover {
+  background-color: #e6f7ff;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.save-button {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.save-button:hover {
+  background-color: #73d13d;
+  border-color: #73d13d;
+}
+
+.cancel-button {
+  background-color: #f5222d;
+  border-color: #f5222d;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.edit-button {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.edit-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-item {
+  font-size: 16px;
+}
 
 @media (max-width: 768px) {
-    .ant-input,
-    .ant-btn {
-      width: 100%;
-      font-size: 14px;
-    }
-  
-    .ant-avatar {
-      width: 150px;
-      height: 150px;
-    }
+  .profile-card {
+    padding: 15px;
   }
+
+  .profile-title {
+    font-size: 24px;
+  }
+
+  .profile-content {
+    flex-direction: column;
+  }
+
+  .avatar-upload {
+    width: 100%;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .save-button,
+  .cancel-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .profile-details {
+    font-size: 14px;
+  }
+}

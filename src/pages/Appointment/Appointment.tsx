@@ -63,7 +63,7 @@ export const Appointment = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get('https://happymed.duckdns.org/doctors');
+        const response = await axios.get('http://127.0.0.1:5000/doctors');
         if (response.status === 200) {
           setDoctors(response.data);
         } else {
@@ -120,6 +120,14 @@ export const Appointment = () => {
               &larr; Choose Another Doctor
             </Button>
           )}
+          <Button
+            ghost
+            type="primary"
+            onClick={() => navigate('/appointments')}
+            style={{ marginBottom: '20px', marginLeft: '10px' }}
+          >
+            History
+          </Button>
           <Title level={2} style={{ textAlign: 'center', marginBottom: '30px' }}>Make an Appointment</Title>
           
           <form onSubmit={handleSubmit(onSubmit)} className="appointment-form">
