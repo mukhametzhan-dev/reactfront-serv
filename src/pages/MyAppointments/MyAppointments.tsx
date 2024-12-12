@@ -53,7 +53,7 @@ export const MyAppointments: React.FC = () => {
 
   const fetchAppointments = async (email: string) => {
     try {
-      const response = await axios.get(`http://localhost:5000/get_appointments_for_doctor?email=${email}`);
+      const response = await axios.get(`https://apihappymed.serveo.net/get_appointments_for_doctor?email=${email}`);
       if (response.status === 200) {
         console.log(response.data.appointments);
         setAppointments(response.data.appointments);
@@ -75,7 +75,7 @@ export const MyAppointments: React.FC = () => {
     if (!selectedAppointmentId) return;
 
     try {
-      const response = await axios.post(`http://localhost:5000/complete_appointment`, {
+      const response = await axios.post(`https://apihappymed.serveo.net/complete_appointment`, {
         appointment_id: selectedAppointmentId,
         diagnosis: values.diagnosis,
         feedback: values.feedback,
