@@ -48,7 +48,7 @@ const MedicalHistory: React.FC = () => {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        const response = await axios.get(`http://127.0.0.1:5000/get_medhistory`, {
+        const response = await axios.get(`https://apihappymed.serveo.net/get_medhistory`, {
           params: { email: parsedUser.email },
         });
         if (response.status === 200) {
@@ -69,7 +69,7 @@ const MedicalHistory: React.FC = () => {
   const fetchAppointments = async (userId: number) => {
     try {
       console.log(userId);
-      const response = await axios.get(`http://localhost:5000/get_appointments_for_patient_with_id?patient_id=${userId}`);
+      const response = await axios.get(`https://apihappymed.serveo.net/get_appointments_for_patient_with_id?patient_id=${userId}`);
       if (response.status === 200) {
         setAppointments(response.data.appointments);
       } else {
@@ -108,7 +108,7 @@ const MedicalHistory: React.FC = () => {
     if (!selectedAppointment) return;
 
     try {
-      const response = await axios.post(`http://localhost:5000/complete_appointment`, {
+      const response = await axios.post(`https://apihappymed.serveo.net/complete_appointment`, {
         appointment_id: selectedAppointment.appointment_id,
         diagnosis: values.diagnosis,
         feedback: values.feedback,
