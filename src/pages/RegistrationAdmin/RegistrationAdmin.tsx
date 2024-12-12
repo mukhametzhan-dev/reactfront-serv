@@ -36,7 +36,7 @@ const RegistrationAdmin = () => {
     }
 
     try {
-      const response = await axios.post('https://apihappymed.serveo.net/register_admin', data, {
+      const response = await axios.post('https://happymedkz.serveo.net/register_admin', data, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -62,7 +62,7 @@ const RegistrationAdmin = () => {
     setVerifying(true);
     try {
       const response = await axios.get(
-        `https://apihappymed.serveo.net/verify_id?identificationNumber=${idNumber}`
+        `https://happymedkz.serveo.net/verify_id?identificationNumber=${idNumber}`
       );
 
       if (response.data.status === 'verified') {
