@@ -123,7 +123,7 @@ const Payment = () => {
     //   );
     try {
       const response = await axios.post(
-        'http://127.0.0.1:5000/make_appointment', // Changed endpoint to make_payment
+        'https://apihappymed.serveo.net/make_appointment', // Changed endpoint to make_payment
         {
           ...appointmentData,
           // paymentSum,
