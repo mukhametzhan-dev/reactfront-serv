@@ -31,7 +31,7 @@ const Support = () => {
 
     try {
         console.log('query:', query);
-      const res = await axios.post('http://localhost:5000/answer_query', { query });
+      const res = await axios.post('https://happymed.work.gd/answer_query', { query });
 
       if (res.status === 200 && res.data.answer) {
         setMessages([...newMessages, { sender: 'bot', text: res.data.answer }]);
