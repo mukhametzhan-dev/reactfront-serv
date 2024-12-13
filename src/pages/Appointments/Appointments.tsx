@@ -81,7 +81,7 @@ export const Appointments = () => {
   const fetchAppointments = async (patient_id: number) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/get_appointments_for_patient_with_id?patient_id=${patient_id}`
+        `https://happymed.work.gd/get_appointments_for_patient_with_id?patient_id=${patient_id}`
       );
 
       if (response.status === 200) {
@@ -144,7 +144,7 @@ export const Appointments = () => {
 
     try {
       const countResponse = await axios.get(
-        `http://localhost:5000/count_canceled_appointments?patient_id=${patientId}`
+        `https://happymed.work.gd/count_canceled_appointments?patient_id=${patientId}`
       );
       const canceledAppointmentsCount = countResponse.data.canceled_appointments_count;
       if (canceledAppointmentsCount >= 3) {
@@ -163,7 +163,7 @@ export const Appointments = () => {
 
   const handleCancel = async (appointmentId: number) => {
     try {
-      const response = await axios.post(`http://localhost:5000/cancel`, { appointment_id: appointmentId });
+      const response = await axios.post(`https://happymed.work.gd/cancel`, { appointment_id: appointmentId });
       if (response.status === 200) {
         message.success('Appointment cancelled successfully.');
         if (patientId) {
@@ -197,7 +197,7 @@ export const Appointments = () => {
 
   const fetchFeedbackAndDiagnosis = async (appointmentId: number) => {
     try {
-      const response = await axios.get(`http://localhost:5000/feedback/${appointmentId}`);
+      const response = await axios.get(`https://happymed.work.gd/feedback/${appointmentId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching feedback and diagnosis:', error);
@@ -207,7 +207,7 @@ export const Appointments = () => {
 
   const fetchCancellationCause = async (appointmentId: number) => {
     try {
-      const response = await axios.get(`http://localhost:5000/cause/${appointmentId}`);
+      const response = await axios.get(`https://happymed.work.gd/cause/${appointmentId}`);
       return response.data.cause;
     } catch (error) {
       console.error('Error fetching cancellation cause:', error);
