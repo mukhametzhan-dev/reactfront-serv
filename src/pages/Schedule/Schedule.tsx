@@ -99,7 +99,7 @@ export const Schedule = () => {
   // Function to fetch existing schedule from backend
   const fetchExistingSchedule = async (email: string) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/get_schedule?email=${email}`);
+      const response = await axios.get(`https://happymed.work.gd/get_schedule?email=${email}`);
       if (response.status === 200 && response.data.schedule) {
         const existingSchedule: ScheduleResponse = response.data;
         const days = existingSchedule.schedule.map((item: any) => item.day);
@@ -210,7 +210,7 @@ export const Schedule = () => {
 
     try {
       const response = await axios.post(
-        'http://127.0.0.1:5000/save_schedule',
+        'https://happymed.work.gd/save_schedule',
         payload,
         {
           headers: {
