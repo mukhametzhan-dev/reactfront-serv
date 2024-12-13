@@ -64,23 +64,39 @@ const Payment = () => {
   };
 
   // Handle Receipt Printing
-  const handlePrintReceipt = () => {
-    if (!receiptData) return;
+const handlePrintReceipt = () => {
+  if (!receiptData) return;
 
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text('Payment Receipt', 105, 20, { align: 'center' });
+  // Add the logo at the top
+  const logoUrl = 'https://raw.githubusercontent.com/mukhametzhan-dev/reactfront-serv/refs/heads/main/public/icons/logo.png';
+  doc.addImage(logoUrl, 'PNG', 10, 10, 40, 40); // Adjust the size and position of the logo
 
-    doc.setFontSize(12);
-    doc.text(`Card Holder: ${receiptData.cardHolder}`, 20, 40);
-    doc.text(`Card Type: ${receiptData.cardType}`, 20, 50);
-    doc.text(`Card Number: **** **** **** ${receiptData.lastFourDigits}`, 20, 60);
-    doc.text(`Payment Amount: ${receiptData.paymentAmount} KZT`, 20, 70);
-    doc.text(`Date & Time: ${receiptData.dateTime}`, 20, 80);
+  // Title of the receipt
+  doc.setFontSize(18);
+  doc.text('Payment Receipt', 105, 30, { align: 'center' });
 
-    doc.save('receipt.pdf');
-  };
+  // Add a separator line
+  doc.setLineWidth(0.5);
+  doc.line(10, 40, 200, 40); // Draw a horizontal line below the title
+
+  // Set font for receipt details
+  doc.setFontSize(12);
+  doc.text(`Card Holder: ${receiptData.cardHolder}`, 20, 50);
+  doc.text(`Card Type: ${receiptData.cardType}`, 20, 60);
+  doc.text(`Card Number: **** **** **** ${receiptData.lastFourDigits}`, 20, 70);
+  doc.text(`Payment Amount: ${receiptData.paymentAmount} KZT`, 20, 80);
+  doc.text(`Date & Time: ${receiptData.dateTime}`, 20, 90);
+
+  // Add a footer
+  doc.setFontSize(10);
+  doc.text('Thank you for your payment!', 105, 120, { align: 'center' });
+
+  // Save the PDF
+  doc.save('receipt.pdf');
+};
+
 
   const onSubmit = async (data: PaymentFormData) => {
     if (!appointmentData) return; // Safe guard
