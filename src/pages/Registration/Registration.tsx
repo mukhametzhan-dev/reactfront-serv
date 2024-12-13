@@ -37,7 +37,7 @@ export const Registration = () => {
         }
       }
 
-      const response = await axios.post('https://happymedkz.serveo.net/register', formData, {
+      const response = await axios.post('http://127.0.0.1:5000/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

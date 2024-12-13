@@ -38,10 +38,12 @@ interface FormData {
 
 export const Appointment = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [specialities, setSpecialities] = useState<string[]>([]);
+  const [selectedSpeciality, setSelectedSpeciality] = useState<string | null>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [patientId, setPatientId] = useState<number | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ day: string; time: string; date: string } | null>(null);
-  
+
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
   const navigate = useNavigate();
 
@@ -50,7 +52,7 @@ export const Appointment = () => {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        setPatientId(parsedUser.patient_id); // Ensure patient_id is set
+        setPatientId(parsedUser.patient_id);
       } catch (error) {
         console.error('Error parsing user data from localStorage:', error);
         message.error('Failed to retrieve user information.');
@@ -63,9 +65,14 @@ export const Appointment = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get('https://happymedkz.serveo.net/doctors');
+        const response = await axios.get('http://127.0.0.1:5000/doctors');
         if (response.status === 200) {
-          setDoctors(response.data);
+          const fetchedDoctors = response.data;
+          setDoctors(fetchedDoctors);
+          const uniqueSpecialities = Array.from(
+            new Set(fetchedDoctors.map((doctor: Doctor) => doctor.specialization.spec_name))
+          );
+          setSpecialities(uniqueSpecialities);
         } else {
           message.error('Failed to fetch doctors.');
         }
@@ -76,6 +83,12 @@ export const Appointment = () => {
     };
     fetchDoctors();
   }, []);
+
+  const handleSpecialityChange = (speciality: string) => {
+    setSelectedSpeciality(speciality);
+    setSelectedDoctor(null);
+    setValue('doctor', undefined);
+  };
 
   const handleDoctorChange = (doctorId: number) => {
     const doctor = doctors.find(doc => doc.doctor_id === doctorId) || null;
@@ -129,51 +142,61 @@ export const Appointment = () => {
             History
           </Button>
           <Title level={2} style={{ textAlign: 'center', marginBottom: '30px' }}>Make an Appointment</Title>
-          
           <form onSubmit={handleSubmit(onSubmit)} className="appointment-form">
             <Row gutter={[16, 24]}>
-              <Col span={24}>
-                <Text strong className="form-label">Select a Doctor</Text>
-                <Controller
-                  name="doctor"
-                  control={control}
-                  rules={{ required: 'Please choose a doctor' }}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      showSearch
-                      placeholder="Search by specialization or name"
-                      optionFilterProp="children"
-                      onSelect={handleDoctorChange}
-                      filterOption={(input, option) => {
-                        const children = Array.isArray(option?.children) 
-                          ? option?.children.join('') 
-                          : option?.children;
-                        return String(children).toLowerCase().includes(input.toLowerCase());
-                      }}
-                      style={{ width: '100%' }}
-                    >
-                      {doctors.map((doctor) => (
-                        <Option key={doctor.doctor_id} value={doctor.doctor_id}>
-                          {doctor.first_name} {doctor.last_name} - {doctor.specialization.spec_name}
-                        </Option>
-                      ))}
-                    </Select>
-                  )}
-                />
-                {errors.doctor && <span className="error-message">{errors.doctor.message}</span>}
-              </Col>
-
-              {selectedDoctor && (
+              {!selectedDoctor && (
                 <>
                   <Col span={24}>
-                    <Divider />
-                    <Title level={4} style={{ marginTop: '0' }}>Doctor's Weekly Schedule</Title>
-                    <Text>Select a date and time for your appointment:</Text>
-                    <Sender emailOfDoctor={selectedDoctor.email} onSend={handleSend} />
+                    <Text strong className="form-label">Select a Speciality</Text>
+                    <Select
+                      value={selectedSpeciality}
+                      onChange={handleSpecialityChange}
+                      placeholder="Choose a specialty"
+                      style={{ width: '100%' }}
+                    >
+                      {specialities.map((spec, index) => (
+                        <Option key={index} value={spec}>{spec}</Option>
+                      ))}
+                    </Select>
                   </Col>
-
                   <Col span={24}>
+                    <Text strong className="form-label">Select a Doctor</Text>
+                    <Controller
+                      name="doctor"
+                      control={control}
+                      rules={{ required: 'Please choose a doctor' }}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          showSearch
+                          placeholder="Select a doctor"
+                          optionFilterProp="children"
+                          onSelect={handleDoctorChange}
+                          filterOption={(input, option) => {
+                            const children = Array.isArray(option?.children)
+                              ? option?.children.join('')
+                              : option?.children;
+                            return String(children).toLowerCase().includes(input.toLowerCase());
+                          }}
+                          style={{ width: '100%' }}
+                        >
+                          {doctors
+                            .filter(doctor => doctor.specialization.spec_name === selectedSpeciality)
+                            .map(doctor => (
+                              <Option key={doctor.doctor_id} value={doctor.doctor_id}>
+                                {doctor.first_name} {doctor.last_name} - {doctor.specialization.spec_name}
+                              </Option>
+                            ))}
+                        </Select>
+                      )}
+                    />
+                    {errors.doctor && <span className="error-message">{errors.doctor.message}</span>}
+                  </Col>
+                </>
+              )}
+              {selectedDoctor && (
+                <Row gutter={[16, 24]}>
+                  <Col xs={24} md={12} style={{ textAlign: 'left' }}>
                     <Text strong className="form-label">Type of Appointment</Text>
                     <Controller
                       name="appointmentType"
@@ -181,19 +204,16 @@ export const Appointment = () => {
                       rules={{ required: 'Please select the type of appointment' }}
                       render={({ field }) => (
                         <Select {...field} placeholder="Select Appointment Type" style={{ width: '100%' }}>
-                          <Option value="Consultation">Consultation - 10,000 KZT </Option>
-                          <Option value="Cluster Scheduling">Cluster Scheduling 7,000 KZT</Option>
-                          <Option value="Follow-Up Visit">Follow-Up Visit 16,000 KZT</Option>
-                          <Option value="Routine Check-Up">Routine Check-Up 9,000 KZT</Option>
-                          <Option value="Personal Health Assessment">Personal Health Assessment 20,000 KZT</Option>
+                          <Option value="Consultation">Consultation - 10,000 KZT</Option>
+                          <Option value="Cluster Scheduling">Cluster Scheduling - 7,000 KZT</Option>
+                          <Option value="Follow-Up Visit">Follow-Up Visit - 16,000 KZT</Option>
+                          <Option value="Routine Check-Up">Routine Check-Up - 9,000 KZT</Option>
+                          <Option value="Personal Health Assessment">Personal Health Assessment - 20,000 KZT</Option>
                         </Select>
                       )}
                     />
                     {errors.appointmentType && <span className="error-message">{errors.appointmentType.message}</span>}
-                  </Col>
-
-                  <Col span={24}>
-                    <Text strong className="form-label">Description</Text>
+                    <Text strong className="form-label" style={{ marginTop: '20px' }}>Description</Text>
                     <Controller
                       name="description"
                       control={control}
@@ -207,18 +227,14 @@ export const Appointment = () => {
                       )}
                     />
                     {errors.description && <span className="error-message">{errors.description.message}</span>}
-                  </Col>
-
-                  <Col span={24}>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      style={{ width: '100%', marginTop: '20px' }}
-                    >
-                      Confirm and Proceed to Payment
+                    <Button type="primary" htmlType="submit" block style={{ marginTop: '20px' }}>
+                      Proceed to Payment
                     </Button>
                   </Col>
-                </>
+                  <Col xs={24} md={12} style={{ paddingLeft: '40px' }}>
+                    <Sender emailOfDoctor={selectedDoctor.email} onSend={handleSend} />
+                  </Col>
+                </Row>
               )}
             </Row>
           </form>

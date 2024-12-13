@@ -1,78 +1,66 @@
-/* Appointments.css */
-
-.appointments-container {
-    padding: 50px;
-  }
-  
-  .appointments-list {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-  
-  .appointments-list .ant-list-item {
-    padding: 20px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  .appointments-list .ant-list-item:last-child {
-    border-bottom: none;
-  }
-  
-  .appointments-list .ant-list-item-meta-title {
-    font-size: 16px;
-    font-weight: bold;
-  }
-  
-  .appointments-list .ant-list-item-meta-description {
-    font-size: 14px;
-  }
-  
-  @media (max-width: 768px) {
-    .appointments-container {
-      padding: 15px;
-    }
-  
-    .appointments-list {
-      padding: 10px;
-    }
-  
-    .appointments-list .ant-list-item {
-      padding: 15px;
-    }
-  
-    .appointments-list .ant-list-item-meta-title {
-      font-size: 14px;
-    }
-  
-    .appointments-list .ant-list-item-meta-description {
-      font-size: 12px;
-    }
-  }
-  /* .selected-time-slot{
-    display: block;
-  } */.appointment-container {
-  padding: 50px;
+.appointment-container {
+  margin-top: 50px;
+  padding: 30px;
   background-color: #f9f9f9;
+  border-radius: 8px;
 }
 
 .appointment-form {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 30px 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin-top: 20px;
 }
 
 .form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .error-message {
-  display: block;
   color: red;
-  margin-top: 5px;
   font-size: 12px;
+  margin-top: 5px;
+}
+
+.appointment-calendar-col {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.calendar-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  height: 300px; /* Increase height */
+}
+
+button {
+  margin-top: 10px;
+}
+
+button + button {
+  margin-left: 10px;
+}
+
+.appointment-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.appointment-details > div {
+  flex: 1;
+  min-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .appointment-details {
+    flex-direction: column;
+  }
+}
+.appointment-container .form-label {
+  text-align: left;
+  display: block;
+}
+
+.appointment-container .ant-col {
+  text-align: left;
 }

@@ -14,17 +14,14 @@
 }
 
 .brand-logo {
-  height: 40px;
-  width: auto;
-  margin-right: 10px;
-  transition: height 0.3s, width 0.3s, margin-right 0.3s;
+  width: 100px; /* Adjust the width as needed */
+  height: auto; /* Maintain aspect ratio */
 }
 
 .collapsed-logo {
-  margin: 0;
-  height: 30px;
+  width: 75px; /* Adjust the width for the collapsed state */
+  height: auto; /* Maintain aspect ratio */
 }
-
 .brand-title {
   font-size: 18px;
   font-weight: 600;
@@ -76,3 +73,11 @@
   background: #aaa;
 }
 
+.brand-title {
+  font-size: 16px; /* Adjust the font size */
+  font-weight: 500; /* Adjust the font weight */
+  color: #333333; /* Adjust the color */
+  margin-left: 10px; /* Add some space between the logo and the text */
+  display: inline-block; /* Ensure it aligns properly with the logo */
+  vertical-align: middle; /* Align vertically with the logo */
+}

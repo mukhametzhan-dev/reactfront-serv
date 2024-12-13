@@ -12,12 +12,12 @@ export const sidebarItems: MenuItem[] = [
   {
     key: 'Tech Support',
     type: 'group',
-    label: 'Tech Support',
+    label: ' Support',
     children: [
       {
         key: privateRoutesMap.support,
         type: 'item',
-        label: 'Tech Support',
+        label: 'AI Assistant',
         icon: <WechatWorkOutlined /> ,
       },
     ],
@@ -57,7 +57,7 @@ export const patientSidebarItems: MenuItem[] = [
       {
         key: privateRoutesMap.appointments,
         type: 'item',
-        label: 'Appointments',
+        label: 'My Appointments',
         icon: <HistoryOutlined />,
       },
       {

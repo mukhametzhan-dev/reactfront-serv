@@ -23,7 +23,6 @@ import moment from 'moment';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 interface Appointment {
   appointment_id: number;
@@ -36,6 +35,9 @@ interface Appointment {
   status: string;
   doctor_name: string;
   appointment_type: string;
+  canceled_by_doctor_cause?: string;
+  diagnosis?: string;
+  feedback?: string;
 }
 
 export const Appointments = () => {
@@ -46,6 +48,8 @@ export const Appointments = () => {
   const [pendingCancellationId, setPendingCancellationId] = useState<number | null>(null);
   const [canceledCount, setCanceledCount] = useState<number>(0);
   const [visibleAppointments, setVisibleAppointments] = useState<number>(5);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [appointmentDetails, setAppointmentDetails] = useState<{ diagnosis?: string; feedback?: string; canceled_by_doctor_cause?: string }>({});
 
   // Filter states
   const [selectedDate, setSelectedDate] = useState<moment.Moment | null>(null);
@@ -58,7 +62,6 @@ export const Appointments = () => {
       try {
         const parsedUser = JSON.parse(storedUser);
         setPatientId(parsedUser.patient_id);
-        console.log(parsedUser.patient_id);
         if (parsedUser.patient_id) {
           fetchAppointments(parsedUser.patient_id);
         }
@@ -73,13 +76,12 @@ export const Appointments = () => {
 
   useEffect(() => {
     applyFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appointments, selectedDate, selectedDoctor, selectedStatus]);
 
   const fetchAppointments = async (patient_id: number) => {
     try {
       const response = await axios.get(
-        `https://happymedkz.serveo.net/get_appointments_for_patient_with_id?patient_id=${patient_id}`
+        `http://localhost:5000/get_appointments_for_patient_with_id?patient_id=${patient_id}`
       );
 
       if (response.status === 200) {
@@ -134,36 +136,7 @@ export const Appointments = () => {
     setVisibleAppointments(5); // Reset visible appointments on filter change
   };
 
-  const getStatusIcon = (status: string, date: string) => {
-    const currentDate = new Date();
-    const appointmentDate = new Date(date);
-    const isPast = appointmentDate < currentDate;
-
-    switch (status.toLowerCase()) {
-      case 'booked':
-        return isPast ? (
-          <CloseCircleOutlined className="status-icon red" />
-        ) : (
-          <ClockCircleOutlined className="status-icon orange" />
-        );
-      case 'completed':
-        return <CheckCircleOutlined className="status-icon green" />;
-      case 'canceled':
-        return <ExclamationCircleOutlined className="status-icon red" />;
-      default:
-        return null;
-    }
-  };
-
-  const canCancelAppointment = (appointmentDate: string, appointmentTime: string) => {
-    const currentDate = new Date();
-    const appointmentDateTime = new Date(`${appointmentDate}T${appointmentTime}`);
-    const timeDifference = (appointmentDateTime.getTime() - currentDate.getTime()) / (1000 * 60 * 60);
-    return timeDifference >= 2;
-  };
-
   const handleCancelClick = async (appointmentId: number) => {
-    console.log(patientId);
     if (!patientId) {
       message.error('Patient ID not found.');
       return;
@@ -171,14 +144,14 @@ export const Appointments = () => {
 
     try {
       const countResponse = await axios.get(
-        `https://happymedkz.serveo.net/count_canceled_appointments?patient_id=${patientId}`
+        `http://localhost:5000/count_canceled_appointments?patient_id=${patientId}`
       );
-      console.log(countResponse.data);
       const canceledAppointmentsCount = countResponse.data.canceled_appointments_count;
       if (canceledAppointmentsCount >= 3) {
         setCanceledCount(canceledAppointmentsCount);
         setPendingCancellationId(appointmentId);
         setIsModalVisible(true);
+        localStorage.setItem('cancellationRestriction', 'true'); // Store in localStorage
       } else {
         handleCancel(appointmentId);
       }
@@ -190,7 +163,7 @@ export const Appointments = () => {
 
   const handleCancel = async (appointmentId: number) => {
     try {
-      const response = await axios.post(`https://happymedkz.serveo.net/cancel`, { appointment_id: appointmentId });
+      const response = await axios.post(`http://localhost:5000/cancel`, { appointment_id: appointmentId });
       if (response.status === 200) {
         message.success('Appointment cancelled successfully.');
         if (patientId) {
@@ -222,13 +195,71 @@ export const Appointments = () => {
     setVisibleAppointments(visibleAppointments + 5);
   };
 
-  const handleFeedback = (appointmentId: number) => {
-    // Implement feedback functionality here
-    message.info(`Feedback for appointment ID: ${appointmentId}`);
+  const fetchFeedbackAndDiagnosis = async (appointmentId: number) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/feedback/${appointmentId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching feedback and diagnosis:', error);
+      return { feedback: 'No information available.', diagnosis: 'No information available.' };
+    }
+  };
+
+  const fetchCancellationCause = async (appointmentId: number) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/cause/${appointmentId}`);
+      return response.data.cause;
+    } catch (error) {
+      console.error('Error fetching cancellation cause:', error);
+      return 'No information available.';
+    }
+  };
+
+  const handleAppointmentClick = async (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    if (appointment.status === 'completed') {
+      const details = await fetchFeedbackAndDiagnosis(appointment.appointment_id);
+      setAppointmentDetails(details);
+    } else if (appointment.status === 'canceled') {
+      const cause = await fetchCancellationCause(appointment.appointment_id);
+      setAppointmentDetails({ canceled_by_doctor_cause: cause });
+    }
   };
 
   // Extract unique doctors for the filter
   const uniqueDoctors = Array.from(new Set(appointments.map((appt) => appt.doctor_name)));
+
+  const canCancelAppointment = (appointmentDate: string, appointmentTime: string) => {
+    const currentDate = new Date();
+    const appointmentDateTime = new Date(`${appointmentDate}T${appointmentTime}`);
+    const timeDifference = (appointmentDateTime.getTime() - currentDate.getTime()) / (1000 * 60 * 60);
+    return timeDifference >= 2;
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return (
+          <>
+            <CheckCircleOutlined style={{ color: 'green' }} /> Completed
+          </>
+        );
+      case 'booked':
+        return (
+          <>
+            <ClockCircleOutlined style={{ color: 'blue' }} /> Booked
+          </>
+        );
+      case 'canceled':
+        return (
+          <>
+            <CloseCircleOutlined style={{ color: 'red' }} /> Canceled
+          </>
+        );
+      default:
+        return status;
+    }
+  };
 
   return (
     <Row justify="center" className="appointments-container">
@@ -237,6 +268,11 @@ export const Appointments = () => {
           <Title level={2} className="appointments-title">
             My Appointments
           </Title>
+          {canceledCount >= 3 && (
+            <Text type="warning" className="cancel-warning">
+              You have canceled {canceledCount} appointments. You cannot cancel any further appointments at this time.
+            </Text>
+          )}
           <div className="filters">
             <Space wrap>
               <DatePicker
@@ -258,7 +294,7 @@ export const Appointments = () => {
               </Select>
               <Select
                 allowClear
-                style={{ width: 150 }}
+                style={{ width: 200 }}
                 placeholder="Select Status"
                 onChange={(value) => setSelectedStatus(value)}
               >
@@ -266,121 +302,94 @@ export const Appointments = () => {
                 <Option value="completed">Completed</Option>
                 <Option value="canceled">Canceled</Option>
               </Select>
-              <Button
-                type="primary"
-                onClick={applyFilters}
-                disabled={!selectedDate && !selectedDoctor && !selectedStatus}
-              >
-                Apply Filters
-              </Button>
-              <Button
-                onClick={() => {
-                  setSelectedDate(null);
-                  setSelectedDoctor('');
-                  setSelectedStatus('');
-                  setFilteredAppointments(appointments);
-                }}
-              >
-                Reset
-              </Button>
+              <Button onClick={() => setFilteredAppointments(appointments)} style={{ marginTop: '-1px'}}>Clear Filters</Button>
             </Space>
           </div>
         </div>
+
         <List
-          className="appointments-list"
-          itemLayout="vertical"
+          itemLayout="horizontal"
           dataSource={filteredAppointments.slice(0, visibleAppointments)}
           renderItem={(appointment) => (
             <List.Item
-              key={appointment.appointment_id}
-              className="appointment-item"
               actions={[
-                appointment.status.toLowerCase() === 'booked' &&
+                appointment.status === 'booked' &&
                 canCancelAppointment(appointment.date, appointment.start_time) ? (
                   <Button
                     type="primary"
                     danger
                     onClick={() => handleCancelClick(appointment.appointment_id)}
-                    className="cancel-button"
+                    disabled={canceledCount >= 3}
                   >
-                    CANCEL
-                  </Button>
-                ) : null,
-                appointment.status.toLowerCase() === 'completed' ? (
-                  <Button
-                    type="default"
-                    onClick={() => handleFeedback(appointment.appointment_id)}
-                    className="feedback-button"
-                  >
-                    Feedback
+                    Cancel Appointment
                   </Button>
                 ) : null,
               ]}
+              onClick={() => handleAppointmentClick(appointment)}
             >
               <List.Item.Meta
-                avatar={getStatusIcon(appointment.status, appointment.date)}
-                title={
-                  <div className="appointment-title">
-                    <span>{`${appointment.day_of_week}, ${appointment.date}`}</span>
-                  </div>
-                }
+                title={`${appointment.doctor_name} - ${appointment.date} ${appointment.start_time} - ${appointment.day_of_week}`}
                 description={
-                  <div className="appointment-details">
-                    <Text>
-                      <strong>Time:</strong> {appointment.start_time} - {appointment.end_time}
-                    </Text>
-                    <br />
-                    <Text>
-                      <strong>Doctor:</strong> {appointment.doctor_name}
-                    </Text>
-                    <br />
-                    <Text>
-                      <strong>Type:</strong> {appointment.appointment_type}
-                    </Text>
-                    <br />
-                    <Text>
-                      <strong>Description:</strong> {appointment.description}
-                    </Text>
-                    <br />
-                    <Text>
-                      <strong>Status:</strong> {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                    </Text>
-                  </div>
+                  <>
+                    {appointment.description} - {getStatusText(appointment.status)}
+                  </>
                 }
               />
             </List.Item>
           )}
         />
-        {visibleAppointments < filteredAppointments.length && (
-          <div className="show-more-container">
-            <Button type="primary" onClick={handleShowMore}>
-              Show More
-            </Button>
-          </div>
+
+        {filteredAppointments.length > visibleAppointments && (
+          <Button type="link" onClick={handleShowMore}>
+            Show More
+          </Button>
+        )}
+
+        {selectedAppointment && (
+          <Modal
+            title="Appointment Details"
+            visible={true}
+            onCancel={() => setSelectedAppointment(null)}
+            footer={null}
+          >
+            <div>
+              <p>
+                <strong>Doctor's Name:</strong> {selectedAppointment.doctor_name}
+              </p>
+              <p>
+                <strong>Appointment Type:</strong> {selectedAppointment.appointment_type}
+              </p>
+              <p>
+                <strong>Status:</strong> {getStatusText(selectedAppointment.status)}
+              </p>
+              {selectedAppointment.status === 'completed' && (
+                <div>
+                  <h3>Diagnosis/Feedback:</h3>
+                  <p>{appointmentDetails.diagnosis}</p>
+                  <p>{appointmentDetails.feedback}</p>
+                </div>
+              )}
+              {selectedAppointment.status === 'canceled' && (
+                <div>
+                  <h3>Cancellation Cause:</h3>
+                  <p>{appointmentDetails.canceled_by_doctor_cause}</p>
+                </div>
+              )}
+            </div>
+          </Modal>
         )}
 
         <Modal
-          title="Cancellation Warning"
+          title="Cancel Appointment"
           visible={isModalVisible}
+          onOk={handleModalConfirm}
           onCancel={handleModalCancel}
-          footer={[
-            <Button key="back" onClick={handleModalCancel}>
-              Back
-            </Button>,
-            <Button key="confirm" type="primary" danger onClick={handleModalConfirm}>
-              Cancel Appointment
-            </Button>,
-          ]}
+          okText="Confirm"
+          cancelText="Cancel"
         >
-          <p>
-            Our system has noticed that you have {canceledCount} appointments canceled previously.
-            If you cancel this one, it will be counted with a penalty of -30% of the booking payment.
-          </p>
-          <p>Do you still want to proceed?</p>
+          <ExclamationCircleOutlined /> You have canceled 3 or more appointments. Do you want to cancel this one?
         </Modal>
       </Col>
     </Row>
   );
 };
-
-export default Appointments;

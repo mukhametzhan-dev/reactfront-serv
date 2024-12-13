@@ -11,4 +11,5 @@ export const privateRoutesMap = {
   medhistory: '/medhistory/',
   transactions: '/transactions/',
   support: '/support/',
+  payment: '/payment/'
 } as const;

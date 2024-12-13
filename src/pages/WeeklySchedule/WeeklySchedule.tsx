@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, List, Typography, DatePicker } from 'antd';
+import { Table, message, DatePicker, Typography } from 'antd';
 import axios from 'axios';
 import './WeeklySchedule.css';
 import dayjs, { Dayjs } from 'dayjs';
@@ -27,64 +27,35 @@ interface ScheduleResponse {
     time: [string, string];
   }[];
 }
-interface SenderComponentProps { // sender: WeeklySchedule
-  emailOfDoctor?: string;
-  onTimeSlotSelect?: (timeSlot: { day: string; time: string; date: string }) => void;
-  onSend: (timeSlot: { day: string; time: string; date: string }) => void;
-}
 
 interface WeeklyScheduleProps {
   emailOfDoctor?: string;
-  onTimeSlotSelect?: (timeSlot: {
-    day: string;
-    time: string;
-    date: string;
-  }) => void;
-  selectedTimeSlotbyPatient: {
-    day: string;
-    time: string;
-    date: string;
-  } | null;
+  onTimeSlotSelect?: (timeSlot: { day: string; time: string; date: string }) => void;
+  selectedTimeSlotbyPatient?: { day: string; time: string; date: string } | null;
 }
-
-
 
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   emailOfDoctor,
   onTimeSlotSelect,
   selectedTimeSlotbyPatient,
 }) => {
-  const [availability, setAvailability] = useState<{ [key: string]: boolean }>(
-    {}
-  );
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [savedSchedule, setSavedSchedule] = useState<ScheduleResponse | null>(
-    null
-  );
+  const [availability, setAvailability] = useState<{ [key: string]: boolean }>({});
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ day: string; time: string; date: string } | null>(
+    selectedTimeSlotbyPatient || null
+  );
 
-  // Retrieve user email from localStorage and fetch existing schedule
   useEffect(() => {
     if (emailOfDoctor) {
       fetchExistingSchedule(emailOfDoctor);
-    } else {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUserEmail(parsedUser.email);
-        fetchExistingSchedule(parsedUser.email);
-      } else {
-        message.error('User not found. Please log in again.');
-      }
     }
   }, [emailOfDoctor]);
 
   const fetchExistingSchedule = async (email: string) => {
     try {
-      const response = await axios.get(
-        `https://happymedkz.serveo.net/get_schedule?email=${email}`
-      );
+      const response = await axios.get(`http://127.0.0.1:5000/get_schedule`, {
+        params: { email },
+      });
       if (response.status === 200 && response.data.schedule) {
         const existingSchedule: ScheduleResponse = response.data;
         const existingAvailability: { [key: string]: boolean } = {};
@@ -93,15 +64,11 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
           const startTime = dayjs(item.time[0], 'HH:mm');
           const endTime = dayjs(item.time[1], 'HH:mm');
           timeSlots.forEach((slot) => {
-            const [slotStart, slotEnd] = slot
-              .split('-')
-              .map((time) => dayjs(time, 'HH:mm'));
+            const [slotStart, slotEnd] = slot.split('-').map((time) => dayjs(time, 'HH:mm'));
             if (
-              (slotStart.isSameOrAfter(startTime) &&
-                slotStart.isBefore(endTime)) ||
+              (slotStart.isSameOrAfter(startTime) && slotStart.isBefore(endTime)) ||
               (slotEnd.isAfter(startTime) && slotEnd.isSameOrBefore(endTime)) ||
-              (slotStart.isSameOrBefore(startTime) &&
-                slotEnd.isSameOrAfter(endTime)) ||
+              (slotStart.isSameOrBefore(startTime) && slotEnd.isSameOrAfter(endTime)) ||
               (slotStart.isAfter(startTime) && slotEnd.isBefore(endTime))
             ) {
               const key = `${day}-${slotStart.format('HH:mm')}`;
@@ -110,7 +77,6 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
           });
         });
         setAvailability(existingAvailability);
-        setSavedSchedule(existingSchedule);
       }
     } catch (error) {
       console.error('Error fetching existing schedule:', error);
@@ -125,17 +91,14 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   };
 
   const handleTimeSlotClick = (day: string, time: string) => {
-    const selectedDay = daysOfWeek.indexOf(day) + 1; // Convert day to day number (Monday = 1, ..., Sunday = 7)
-    const selectedDateWithDay = selectedDate.day(selectedDay);
+    const selectedDayNumber = daysOfWeek.indexOf(day);
+    const selectedDay = dayjs(selectedDate).day(selectedDayNumber + 1);
     const selectedTimeSlot = {
       day,
       time,
-      date: selectedDateWithDay.format('DD.MM.YYYY'),
+      date: selectedDay.format('YYYY-MM-DD'),
     };
-    setSelectedTimeSlot(JSON.stringify(selectedTimeSlot, null, 2));
-    message.success(
-      `Selected time slot: ${selectedTimeSlot.day} ${selectedTimeSlot.time} on ${selectedTimeSlot.date}`
-    );
+    setSelectedTimeSlot(selectedTimeSlot);
     if (onTimeSlotSelect) {
       onTimeSlotSelect(selectedTimeSlot);
     }
@@ -146,18 +109,24 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       title: 'Time',
       dataIndex: 'time',
       fixed: 'left',
-      width: 120,
+      width: 80,
+      align: 'center',
     },
     ...daysOfWeek.map((day) => ({
-      title: day,
+      title: <div style={{ whiteSpace: 'nowrap' }}>{day}</div>,
       dataIndex: day,
+      width: 80,
+      align: 'center',
       render: (_: any, record: any) => {
         const key = `${day}-${record.time.split('-')[0]}`;
         const isAvailable = availability[key];
-        const isSelected = selectedTimeSlotbyPatient?.day == day && record.time == selectedTimeSlotbyPatient.time
+        const isSelected =
+          selectedTimeSlot?.day === day && record.time === selectedTimeSlot.time;
         return (
           <div
-            className={`cell ${isAvailable ? 'available' : 'unavailable'} ${isSelected && "selected"}`}
+            className={`cell ${isAvailable ? 'available' : 'unavailable'} ${
+              isSelected ? 'selected' : ''
+            }`}
             onClick={() => isAvailable && handleTimeSlotClick(day, record.time)}
           />
         );
@@ -183,37 +152,28 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
         value={selectedDate}
         onChange={handleDateChange}
         disabledDate={(current) =>
-          current &&
-          (current < dayjs().startOf('day') || current > dayjs().add(4, 'week'))
+          current && (current < dayjs().startOf('day') || current > dayjs().add(4, 'week'))
         }
+        style={{ marginBottom: '16px' }}
       />
       <Table
         columns={columns}
         dataSource={data}
         pagination={false}
-        scroll={{ x: 'max-content', y: 500 }}
+        scroll={{ x: 'max-content', y: 400 }}
+        className="schedule-table"
+        rowKey={(record) => record.time}
       />
-      {/* {selectedTimeSlot && (
+      {selectedTimeSlot && (
         <div className="selected-time-slot">
           <Typography.Title level={4}>Selected Time Slot</Typography.Title>
-          <pre>{selectedTimeSlot}</pre>
+          <Text strong>Day:</Text> {selectedTimeSlot.day}
+          <br />
+          <Text strong>Time:</Text> {selectedTimeSlot.time}
+          <br />
+          <Text strong>Date:</Text> {selectedTimeSlot.date}
         </div>
-      )} */}
-      {/* {savedSchedule && savedSchedule.schedule.length > 0 && (
-        <div className="saved-schedule">
-          <Typography.Title level={3}>Your Saved Schedule</Typography.Title>
-          <List
-            bordered
-            dataSource={savedSchedule.schedule}
-            renderItem={(item) => (
-              <List.Item>
-                <Text strong>{capitalizeFirstLetter(item.day)}:</Text>{' '}
-                {item.time[0]} - {item.time[1]}
-              </List.Item>
-            )}
-          />
-        </div>
-      )} */}
+      )}
     </div>
   );
 };

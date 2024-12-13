@@ -1,4 +1,24 @@
-.navbar{
-  background-color: white;
-  padding: 20px 50px;
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #ffffff;
+  padding: 10px 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.user-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.ant-avatar {
+  background-color: #87d068; /* Default background color for avatar */
 }

@@ -95,7 +95,7 @@ export const Profile = () => {
         const endpoint = user.role === 'doctor' ? 'edit_doctor_profile' : 'edit_patient_profile';
 
         const response = await axios.put(
-          `https://happymedkz.serveo.net//${endpoint}`,
+          `http://127.0.0.1:5000/${endpoint}`,
           updatedData,
           {
             headers: {

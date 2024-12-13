@@ -1,0 +1,19 @@
+.rightcontainer {
+    width: 100%;
+  }
+  
+  .rightcontainer .ant-typography {
+    text-align: center;
+  }
+  
+  .rightcontainer .selected-time-slot {
+    margin-top: 20px;
+  }
+
+  /* Sender.css */
+
+.sender-container {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px; /* Add padding to the left and right */
+  }
