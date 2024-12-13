@@ -36,7 +36,7 @@ const Sender: React.FC<SenderComponentProps> = ({ emailOfDoctor, onSend }) => {
         />
       </div>
       <div className="right-container" style={{ flex: 1, paddingLeft: '20px' }}>
-        {selectedTimeSlot && (
+{/*         {selectedTimeSlot && (
           <div>
             <Title level={4}>Selected Time Slot</Title>
             <Text strong>Day:</Text> {selectedTimeSlot.day}
@@ -46,7 +46,7 @@ const Sender: React.FC<SenderComponentProps> = ({ emailOfDoctor, onSend }) => {
             <Text strong>Date:</Text> {selectedTimeSlot.date}
             <br />
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
