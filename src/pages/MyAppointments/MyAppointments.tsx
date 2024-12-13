@@ -20,7 +20,9 @@ interface Appointment {
   start_time: string;
   status: string;
   patient_name: string;
-  appointment_type: string; // Added
+  appointment_type: string;
+  feedback?: string;
+  diagnosis?: string;
 }
 
 interface CompletionData {
@@ -33,7 +35,9 @@ export const MyAppointments: React.FC = () => {
   const [doctorEmail, setDoctorEmail] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
+  const [cancelReason, setCancelReason] = useState<string>('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -55,7 +59,6 @@ export const MyAppointments: React.FC = () => {
     try {
       const response = await axios.get(`https://happymed.work.gd/get_appointments_for_doctor?email=${email}`);
       if (response.status === 200) {
-        console.log(response.data.appointments);
         setAppointments(response.data.appointments);
       } else {
         message.error('Failed to fetch appointments.');
@@ -66,43 +69,88 @@ export const MyAppointments: React.FC = () => {
     }
   };
 
-  const showCompletionModal = (appointmentId: number) => {
-    setSelectedAppointmentId(appointmentId);
-    setIsModalVisible(true);
-  };
-
   const handleCompleteAppointment = async (values: CompletionData) => {
     if (!selectedAppointmentId) return;
 
     try {
-      const response = await axios.post(`https://happymed.work.gd/complete_appointment`, {
-        appointment_id: selectedAppointmentId,
-        diagnosis: values.diagnosis,
+      const response = await axios.put(`https://happymed.work.gd/${selectedAppointmentId}`, {
         feedback: values.feedback,
+        diagnosis: values.diagnosis,
       });
       if (response.status === 200) {
-        message.success('Appointment completed successfully.');
+        message.success('Appointment updated successfully.');
         setIsModalVisible(false);
         form.resetFields();
         fetchAppointments(doctorEmail!);
       } else {
-        message.error('Failed to complete appointment.');
+        message.error('Failed to update appointment.');
       }
     } catch (error) {
-      console.error('Error completing appointment:', error);
+      console.error('Error updating appointment:', error);
+      message.error('An unexpected error occurred.');
+    }
+  };
+
+  const handleCancelAppointment = async () => {
+    if (!selectedAppointmentId) return;
+
+    try {
+      const response = await axios.post('https://happymed.work.gd/cancel_appointment_by_doctor', {
+        appointment_id: selectedAppointmentId,
+        cause: cancelReason,
+      });
+      if (response.status === 200) {
+        message.success('Appointment cancelled successfully.');
+        setIsCancelModalVisible(false);
+        fetchAppointments(doctorEmail!);
+      } else {
+        message.error('Failed to cancel appointment.');
+      }
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
       message.error('An unexpected error occurred.');
     }
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    setIsCancelModalVisible(false);
     form.resetFields();
     setSelectedAppointmentId(null);
+    setCancelReason('');
   };
 
+  const showCancelModal = (appointmentId: number) => {
+    setSelectedAppointmentId(appointmentId);
+    setIsCancelModalVisible(true);
+  };
+
+  const showCompletionModal = async (appointmentId: number) => {
+    try {
+      setSelectedAppointmentId(appointmentId);
+  
+      // Fetch diagnosis and feedback
+      const response = await axios.get(`https://happymed.work.gd/feedback/${appointmentId}`);
+      if (response.status === 200) {
+        const { diagnosis, feedback } = response.data;
+  
+        // Set form fields with fetched data
+        form.setFieldsValue({
+          diagnosis: diagnosis || '',
+          feedback: feedback || '',
+        });
+      } else {
+        message.error('Failed to fetch appointment details.');
+      }
+  
+      setIsModalVisible(true);
+    } catch (error) {
+      console.error('Error fetching appointment details:', error);
+      message.error('An unexpected error occurred while fetching appointment details.');
+    }
+  };
   const getStatusIcon = (status: string, appointmentDate: string) => {
     const now = dayjs();
-    
     const isUpcoming = dayjs(appointmentDate).isAfter(now, 'day');
 
     if (status.toLowerCase() === 'completed') {
@@ -169,6 +217,8 @@ export const MyAppointments: React.FC = () => {
         const isUpcoming = dayjs(record.date).isAfter(now, 'day');
         if (record.status.toLowerCase() === 'completed') {
           return <span className="status-completed">Completed</span>;
+        } else if (record.status.toLowerCase() === 'canceled' || record.status.toLowerCase() === 'canceled by doctor') {
+          return <span className="status-canceled">Canceled</span>;
         } else if (isUpcoming) {
           return <span className="status-upcoming">Upcoming</span>;
         } else {
@@ -180,26 +230,36 @@ export const MyAppointments: React.FC = () => {
       title: 'Action',
       key: 'action',
       render: (_: any, record: Appointment) => {
-        const now = dayjs();
-        const appointmentDate = dayjs(record.date);
-        const startTime = dayjs(`${record.date}T${record.start_time}`);
-        const endTime = dayjs(`${record.date}T${record.end_time}`);
-        const isCurrent = now.isSame(appointmentDate, 'day') && now.isBetween(startTime, endTime);
-
+        const isUpcoming = record.status.toLowerCase() === 'booked'; // Assuming 'booked' is for upcoming appointments
+        const isCompleted = record.status.toLowerCase() === 'completed';
+        const isCanceled = record.status.toLowerCase() === 'canceled' || record.status.toLowerCase() === 'canceled by doctor';
+    
         return (
-          <Button
-            type="primary"
-            disabled={record.status.toLowerCase() === 'completed'}
-            onClick={() => showCompletionModal(record.appointment_id)}
-            className="complete-button"
-          >
-            Complete
-          </Button>
+          <>
+            {isUpcoming && !isCanceled ? (
+              <>
+                <Button danger onClick={() => showCancelModal(record.appointment_id)}>
+                  Cancel
+                </Button>
+                <Button type="primary" onClick={() => showCompletionModal(record.appointment_id)} style={{ marginLeft: 8 }}>
+                  Complete
+                </Button>
+              </>
+            ) : isCompleted && !isCanceled ? (
+              <Button type="primary" onClick={() => showCompletionModal(record.appointment_id)}>
+                Modify
+              </Button>
+            ) : null}
+    
+            {isCanceled && <span>Canceled</span>}
+          </>
         );
       },
     },
+    
   ];
-
+  
+  
   return (
     <div className="my-appointments">
       <Title level={2} className="appointments-title">My Appointments</Title>
@@ -208,52 +268,37 @@ export const MyAppointments: React.FC = () => {
         dataSource={appointments} 
         rowKey="appointment_id" 
         pagination={{ pageSize: 5 }} 
-        className="appointments-table"
       />
-
       <Modal
-        title="Complete Appointment"
+        title="Modify Appointment"
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
-        centered
-        destroyOnClose
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleCompleteAppointment}
-        >
-          <Form.Item
-            label="Diagnosis"
-            name="diagnosis"
-            rules={[{ required: true, message: 'Please enter the diagnosis.' }]}
-          >
-            <Input.TextArea placeholder="Enter diagnosis" rows={3} />
+        <Form form={form} onFinish={handleCompleteAppointment}>
+          <Form.Item name="diagnosis" label="Diagnosis">
+            <Input.TextArea />
           </Form.Item>
-
-          <Form.Item
-            label="Feedback"
-            name="feedback"
-            rules={[{ required: true, message: 'Please enter the feedback.' }]}
-          >
-            <Input.TextArea placeholder="Enter feedback" rows={3} />
+          <Form.Item name="feedback" label="Feedback">
+            <Input.TextArea />
           </Form.Item>
-
-          <Form.Item>
-            <div className="modal-buttons">
-              <Button onClick={handleCancel} className="cancel-button">
-                Cancel
-              </Button>
-              <Button type="primary" htmlType="submit" className="submit-button">
-                Submit
-              </Button>
-            </div>
-          </Form.Item>
+          <Button type="primary" htmlType="submit">Save</Button>
         </Form>
+      </Modal>
+      <Modal
+        title="Cancel Appointment"
+        visible={isCancelModalVisible}
+        onCancel={handleCancel}
+        onOk={handleCancelAppointment}
+        okText="Confirm"
+      >
+        <Input.TextArea
+          placeholder="Please provide a reason for cancellation"
+          value={cancelReason}
+          onChange={(e) => setCancelReason(e.target.value)}
+        />
       </Modal>
     </div>
   );
 };
-
 export default MyAppointments;
