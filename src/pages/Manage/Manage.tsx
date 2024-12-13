@@ -61,7 +61,7 @@ const Manage = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://127.0.0.1:5000/get_${role}?query=${query}`
+        `https://happymed.work.gd/get_${role}?query=${query}`
       );
       console.log(response);
       if (response.status === 200) {
@@ -101,7 +101,7 @@ const Manage = () => {
     if (editedUser) {
       try {
         const response = await axios.put(
-          `http://127.0.0.1:5000/update_user`,
+          `https://happymed.work.gd/update_user`,
           editedUser
         );
         if (response.status === 200) {
@@ -127,7 +127,7 @@ const Manage = () => {
       onOk: async () => {
         try {
           const response = await axios.delete(
-            `http://127.0.0.1:5000/delete_user`,
+            `https://happymed.work.gd/delete_user`,
             { data: { email: user.email } }
           );
           if (response.status === 200) {
@@ -158,8 +158,8 @@ const Manage = () => {
       try {
         const response = await axios.get(
           selectedUser.role === 'doctor'
-            ? `http://localhost:5000/get_appointments_for_doctor?email=${selectedUser.email}`
-            : `http://localhost:5000/get_appointments_for_patient_with_id?patient_id=${selectedUser.id}`
+            ? `https://happymed.work.gd/get_appointments_for_doctor?email=${selectedUser.email}`
+            : `https://happymed.work.gd/get_appointments_for_patient_with_id?patient_id=${selectedUser.id}`
         );
         if (response.status === 200) {
           setAppointments(response.data.appointments);
