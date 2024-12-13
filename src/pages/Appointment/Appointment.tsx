@@ -65,7 +65,7 @@ export const Appointment = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/doctors');
+        const response = await axios.get('https://happymed.work.gd/doctors');
         if (response.status === 200) {
           const fetchedDoctors = response.data;
           setDoctors(fetchedDoctors);
